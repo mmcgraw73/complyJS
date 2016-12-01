@@ -9,6 +9,19 @@ An 8kb ADA compliancy jQuery module!
 * Programmatically builds ARIA label and tagging
 * Built in debugging tools directly accessible from console
 
+# CSS CLASSES AND IDs
+### $.adaNotify()
+Creates two divs with ids applied **#adaStatus** and **#adaContent**
+  
+In addition to the IDs when the system is actived these divs while have an additional class for status.  
+**.start** is applied upon system activation  
+**.exit** is applied upon system close
+
+### General Navigation
+If an menu item has no parent or the sub-menu is not opened current item class selected has the class **.working**
+  
+If a submenu is open the current item has the class **.working** while the submenu header has the class **.ada-parent**
+
 # Methods and usage
 ### $.adaSanitize()
 Sanitizes the current page after the DOM is ready to ensure proper HTML tag usage. An example would be changing all of the \<b\> and \<i\> tags to \<strong\> and \<em\>. 
