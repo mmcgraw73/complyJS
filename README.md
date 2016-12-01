@@ -70,3 +70,13 @@ Allows a section to be defined to skip to on SPACEBARD keydown event
 ```javascript
 $.adaMainContent(".trending", 1000);
 ```
+
+### $.adaDebug(option)
+Accessible through console allowing you to recieve debug information for diagnosing system problems.
+
+**Param options**
+* "adaLinks" - Prints out all menus being used
+* "parentLinks"- Prints out parent selectors being monitored by menus
+* "index" - Monitors and prints out current index placement
+* "event" - Monitors and prints out event
+* "allMenu" - Prints out all the menu information, monitors and prints out event, monitors and prints out current index placement
