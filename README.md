@@ -22,7 +22,7 @@ Creates alt attributes for all images passed in.
 ##### Param options
 $.adaImages(["selector", "method", "text to use"])
 
-**Method options**
+**Method options**  
 * "parent" - Retrieves the inner text of the selector's parent
 * "sibling" - Retrieves the inner text of the selector's sibling
 * "combo" - Retrieves the inner text of the selector's parent's child 
@@ -41,15 +41,12 @@ $.adaImages([
 Programmatically builds an ADA compliant navigation menu
 
 ##### Param options
-$.adaBuilder([ [selector, optional-parent] ])
+$.adaBuilder([ [selector, optional-parent] ]) **or** with no parent needed $.adaBuilder([ selector ])
 
-or with no parent needed
-$.adaBuilder([ selector ])
-
-**Selector options**
+**Selector options**  
 Selector needs to a jQuery defined selector. Example: $(".my-selector a")
 
-**Optional Parent options**
+**Optional Parent options**  
 Parent to be targeted for submenu headers are passed through a string literal Example: '.my-parent'
 
 ##### Use case examples
@@ -61,4 +58,15 @@ $.adaBuilder(
     jQuery('.skip-cart'),
   ]
 );
+```
+### $.adaMainContent(section,scrollSpeed)
+Allows a section to be defined to skip to on SPACEBARD keydown event
+
+**Param options**
+* 'selector' - Needs to be passed a string literal. Example: '.my-selector'
+* scrollSpeed - optional integer to pass. If not default is 1000ms
+
+##### Use case example
+```javascript
+$.adaMainContent(".trending", 1000);
 ```
