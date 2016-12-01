@@ -10,14 +10,14 @@ An 8kb ADA compliancy jQuery module!
 * Built in debugging tools directly accessible from console
 
 # CSS CLASSES AND IDs
-### $.adaNotify()
+#### $.adaNotify()
 Creates two divs with ids applied **#adaStatus** and **#adaContent**
   
 In addition to the IDs when the system is actived these divs while have an additional class for status.  
 **.start** is applied upon system activation  
 **.exit** is applied upon system close
 
-### General Navigation
+#### General Navigation
 If an menu item has no parent or the sub-menu is not opened current item class selected has the class **.working**
   
 If a submenu is open the current item has the class **.working** while the submenu header has the class **.ada-parent**
