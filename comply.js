@@ -20,6 +20,7 @@
 jQuery(document).ready(function($){ 
   var doc = jQuery(document),
       body = jQuery('html'),
+      winWidth = window.innerWidth,
       menuOn = false, // Sets the menu off till tab key activates it
       outerIndex = 0, // outer index count of the adaLinks array
       innerIndex = 0, // inner index count of the jquery objects within adaLinks
@@ -34,6 +35,7 @@ jQuery(document).ready(function($){
       nextParentHolder, // This holds a value for index skipping if the menu is never opened
       arraySwitch = false,
       systemStart = false,
+      screenSize,
 
       // Non menu variables for system interaction
       viewingMain = false, // Tells user if they are currently scrolled to content or not
@@ -153,7 +155,10 @@ jQuery(document).ready(function($){
   /** 
    * Builds out the array so there is no need to touch the DOM for manipulation
   **/    
-  $.adaBuilder = function (array) {
+  $.adaBuilder = function (array, screenVal) {
+    // Apply screen breakpoint to system
+    screenSize = screenVal;
+
     // Stop ada builder if no array is passed
     if (array === undefined) {
       console.log('%cYou have not defined an array of valid selectors.',debugCss);
@@ -208,44 +213,32 @@ jQuery(document).ready(function($){
 
     
     doc.on('keydown', function(event) {
-      // ESC key - Reset entire system and remove all classes/attributes
-      if (event.which === 27) {
-        domEle2.text('Menu navigation turned off');
-        domEle2.removeClass('start').addClass('exit');
-        domEle.css('height',0);
-
-        setTimeout(function () { 
-          domEle2.css('opacity', 0); 
-        }, 400);
-        setTimeout(function () { 
-          domEle.removeClass('start');
-          domEle2.removeClass('exit'); 
-        }, 1000);
-      }
-      // SPACEBAR key - Reset entire system and remove all classes/attributes
-      if (event.which === 32) {
-        domEle.hasClass('start') ? domEle.removeClass('start') : domEle.addClass('start');
-      }
-      // Event for all key events except Esc or SPACEBAR
-      else if (
-        (!event.shiftKey && event.which === 9) || // tab
-        event.which === 37 || // left
-        event.which === 38 || // up
-        event.which === 39 || // right
-        event.which === 40 || // down
-        (event.shiftKey && event.which === 9) // shift+tab
-        ) {
-        if (viewingMain = "start") {
-          domEle.addClass('start');
-          domEle.css('height',"40px");
-          domEle2.text('Menu navigation turned on. Press \'Esc\' to turn off.');
-          domEle2.addClass('start').css('opacity', 1);
-          bypass = true;
-        } else if (bypass) {
-          domEle.removeClass('start');
-          domEle2.removeClass('start');
-          bypass = false;
-        }  
+      if (window.innerWidth > screenSize) {
+        // SPACEBAR key 
+        if (event.which === 32) {
+          domEle.hasClass('start') ? domEle.removeClass('start') : domEle.addClass('start');
+        }
+        // Event for all key events except Esc or SPACEBAR
+        else if (
+          (!event.shiftKey && event.which === 9) || // tab
+          event.which === 37 || // left
+          event.which === 38 || // up
+          event.which === 39 || // right
+          event.which === 40 || // down
+          (event.shiftKey && event.which === 9) // shift+tab
+          ) {
+          if (viewingMain = "start") {
+            domEle.addClass('start');
+            domEle.css('height',"40px");
+            domEle2.text('Menu navigation turned on. Press \'Esc\' to turn off.');
+            domEle2.addClass('start').css('opacity', 1);
+            bypass = true;
+          } else if (bypass) {
+            domEle.removeClass('start');
+            domEle2.removeClass('start');
+            bypass = false;
+          }  
+        }
       }
     });
   }
@@ -258,25 +251,27 @@ jQuery(document).ready(function($){
   $.adaMainContent = function (section , scrollSpeed) {
 
     body.on('keydown', function(event) {
-      // Space Bar usage 
-      if (menuOn === true && event.which === 32 && viewingMain === "start") {
-        event.preventDefault();
+      if (window.innerWidth > screenSize) {
+        // Space Bar usage 
+        if (menuOn === true && event.which === 32 && viewingMain === "start") {
+          event.preventDefault();
 
-        $('html, body').animate({
-            scrollTop: $(section).offset().top
-        }, scrollSpeed === undefined ? 500 : scrollSpeed);
-        viewingMain = true;
+          $('html, body').animate({
+              scrollTop: $(section).offset().top
+          }, scrollSpeed === undefined ? 500 : scrollSpeed);
+          viewingMain = true;
 
-      } else if (menuOn === true && event.which === 32 && viewingMain === true) {
-        event.preventDefault();
+        } else if (menuOn === true && event.which === 32 && viewingMain === true) {
+          event.preventDefault();
 
-        $('html, body').animate({
-            scrollTop: 0
-        }, scrollSpeed === undefined ? 500 : scrollSpeed);
-        viewingMain = "start";
-        $('#adaMainContent').addClass('show');
-      } else {
-        $('#adaMainContent').removeClass('show');
+          $('html, body').animate({
+              scrollTop: 0
+          }, scrollSpeed === undefined ? 500 : scrollSpeed);
+          viewingMain = "start";
+          $('#adaMainContent').addClass('show');
+        } else {
+          $('#adaMainContent').removeClass('show');
+        }
       }
     });
   }
@@ -318,46 +313,50 @@ jQuery(document).ready(function($){
       }
     } else if (option1 === "index") {
       doc.on('keydown', function(event) {
-        if (
-          (!event.shiftKey && event.which === 9) || // tab
-          event.which === 37 || // left
-          event.which === 38 || // up
-          event.which === 39 || // right
-          event.which === 40 || // down
-          (event.shiftKey && event.which === 9) // shift+tab
-          ) {
-          console.log('%cMenu: '+outerIndex+' Menu Item: '+innerIndex, debugCss3);
+        if (window.innerWidth > screenSize) {
+          if (
+            (!event.shiftKey && event.which === 9) || // tab
+            event.which === 37 || // left
+            event.which === 38 || // up
+            event.which === 39 || // right
+            event.which === 40 || // down
+            (event.shiftKey && event.which === 9) // shift+tab
+            ) {
+            console.log('%cMenu: '+outerIndex+' Menu Item: '+innerIndex, debugCss3);
+          }
         }
       });
-    } else if ("event") {
+    } else if (option1 === "event") {
       doc.on('keydown', function(event) {
-        // Tab
-        if (!event.shiftKey && event.which === 9 ) {
-          console.log('Event: Tab');
-        }
-        // Shift+tab
-        else if (event.shiftKey && event.which === 9 ) {
-          console.log('Event: Shift+Tab');
-        }
-        // ESC key - Reset entire system and remove all classes/attributes
-        else if (event.which === 27) {
-          console.log('Event: Esc');
-        }
-        // Left Arrow or shift+tab
-        else if ( event.which === 37 || (event.shiftKey && event.which === 9) ) {
-          console.log('Event: Left arrow');
-        }
-        // Right arrow key
-        else if (event.which === 39) {
-          console.log('Event: Right arrow');
-        }
-        // Up arrow key
-        else if (event.which === 38) {
-          console.log('Event: Up arrow');
-        }
-        // Down arrow key
-        else if (event.which === 40) {
-          console.log('Event: Down arrow');
+        if (window.innerWidth > screenSize) {
+          // Tab
+          if (!event.shiftKey && event.which === 9 ) {
+            console.log('Event: Tab');
+          }
+          // Shift+tab
+          else if (event.shiftKey && event.which === 9 ) {
+            console.log('Event: Shift+Tab');
+          }
+          // ESC key - Reset entire system and remove all classes/attributes
+          else if (event.which === 27) {
+            console.log('Event: Esc');
+          }
+          // Left Arrow or shift+tab
+          else if ( event.which === 37 || (event.shiftKey && event.which === 9) ) {
+            console.log('Event: Left arrow');
+          }
+          // Right arrow key
+          else if (event.which === 39) {
+            console.log('Event: Right arrow');
+          }
+          // Up arrow key
+          else if (event.which === 38) {
+            console.log('Event: Up arrow');
+          }
+          // Down arrow key
+          else if (event.which === 40) {
+            console.log('Event: Down arrow');
+          }
         }
       });
     } else if (option1 === "allMenu") {
@@ -376,44 +375,46 @@ jQuery(document).ready(function($){
       console.log('%cEND MENU ARRAYS',debugCss2);
 
       doc.on('keydown', function(event) {
-        if (
-          (!event.shiftKey && event.which === 9) || // tab
-          event.which === 37 || // left
-          event.which === 38 || // up
-          event.which === 39 || // right
-          event.which === 40 || // down
-          (event.shiftKey && event.which === 9) // shift+tab
-          ) {
-          console.log('%cMenu: '+outerIndex+' Menu Item: '+innerIndex, debugCss3);
-        }
+        if (window.innerWidth > screenSize) {
+          if (
+            (!event.shiftKey && event.which === 9) || // tab
+            event.which === 37 || // left
+            event.which === 38 || // up
+            event.which === 39 || // right
+            event.which === 40 || // down
+            (event.shiftKey && event.which === 9) // shift+tab
+            ) {
+            console.log('%cMenu: '+outerIndex+' Menu Item: '+innerIndex, debugCss3);
+          }
 
-        // Tab
-        if (!event.shiftKey && event.which === 9 ) {
-          console.log('Event: Tab');
-        }
-        // Shift+tab
-        else if (event.shiftKey && event.which === 9 ) {
-          console.log('Event: Shift+Tab');
-        }
-        // ESC key - Reset entire system and remove all classes/attributes
-        else if (event.which === 27) {
-          console.log('Event: Esc');
-        }
-        // Left Arrow or shift+tab
-        else if ( event.which === 37 || (event.shiftKey && event.which === 9) ) {
-          console.log('Event: Left arrow');
-        }
-        // Right arrow key
-        else if (event.which === 39) {
-          console.log('Event: Right arrow');
-        }
-        // Up arrow key
-        else if (event.which === 38) {
-          console.log('Event: Up arrow');
-        }
-        // Down arrow key
-        else if (event.which === 40) {
-          console.log('Event: Down arrow');
+          // Tab
+          if (!event.shiftKey && event.which === 9 ) {
+            console.log('Event: Tab');
+          }
+          // Shift+tab
+          else if (event.shiftKey && event.which === 9 ) {
+            console.log('Event: Shift+Tab');
+          }
+          // ESC key - Reset entire system and remove all classes/attributes
+          else if (event.which === 27) {
+            console.log('Event: Esc');
+          }
+          // Left Arrow or shift+tab
+          else if ( event.which === 37 || (event.shiftKey && event.which === 9) ) {
+            console.log('Event: Left arrow');
+          }
+          // Right arrow key
+          else if (event.which === 39) {
+            console.log('Event: Right arrow');
+          }
+          // Up arrow key
+          else if (event.which === 38) {
+            console.log('Event: Up arrow');
+          }
+          // Down arrow key
+          else if (event.which === 40) {
+            console.log('Event: Down arrow');
+          }
         }
       });
 
@@ -431,60 +432,75 @@ jQuery(document).ready(function($){
 
   function keyCharEvents () {
     doc.on('keydown', function(event) {
-      // Tab
-      if (!event.shiftKey && event.which === 9 ) {
-        arrayIncrementer();
-        // Initiate menu
-        menuOn = true;
-
-        // Remove any content viewing attributes
-        if (!viewingMain) {
-          viewingMain = "start";
-        }
-        
-      }
-      // ESC key - Reset entire system and remove all classes/attributes
-      else if (event.which === 27) {
-        systemExit();
-      }
-      // Left Arrow or shift+tab
-      else if ( event.which === 37 || (event.shiftKey && event.which === 9) ) {
-        if (menuOn) arrayDecrementer();
-      }
-      // Right arrow key
-      else if (event.which === 39) {
-        if (menuOn) arrayIncrementer();
-      }
-      // Up arrow key
-      else if (event.which === 38) {
-        if (menuOn) arrayDecrementer();
-      }
-      // Down arrow key
-      else if (event.which === 40) {
-        if (parentStatus === "skipper") {
-          innerIndex = 0;
-          $('.working').addClass('ada-parent').removeClass('working');
-          $(adaLinks[outerIndex][innerIndex]).addClass('working').focus();
-          parentStatus = "opened";
-          arraySwitch = false;
-          return;
-        } else if (menuOn) {
+      if (window.innerWidth > screenSize) {
+        // Tab
+        if (!event.shiftKey && event.which === 9 ) {
           arrayIncrementer();
+          // Initiate menu
+          menuOn = true;
+
+          // Remove any content viewing attributes
+          if (!viewingMain) {
+            viewingMain = "start";
+          }
+          
+        }
+        // ESC key - Reset entire system and remove all classes/attributes
+        else if (event.which === 27) {
+          systemExit();
+        }
+        // Left Arrow or shift+tab
+        else if ( event.which === 37 || (event.shiftKey && event.which === 9) ) {
+          if (menuOn) arrayDecrementer();
+        }
+        // Right arrow key
+        else if (event.which === 39) {
+          if (menuOn) arrayIncrementer();
+        }
+        // Up arrow key
+        else if (event.which === 38) {
+          if (menuOn) arrayDecrementer();
+        }
+        // Down arrow key
+        else if (event.which === 40) {
+          if (parentStatus === "skipper") {
+            innerIndex = 0;
+            $('.working').addClass('ada-parent').removeClass('working');
+            $(adaLinks[outerIndex][innerIndex]).addClass('working').focus();
+            parentStatus = "opened";
+            arraySwitch = false;
+            return;
+          } else if (menuOn) {
+            arrayIncrementer();
+          }
+        }
+
+
+        // Parent watcher event for all key events except escape
+        if (
+          (!event.shiftKey && event.which === 9) || // tab
+          event.which === 37 || // left
+          event.which === 38 || // up
+          event.which === 39 || // right
+          event.which === 40 || // down
+          (event.shiftKey && event.which === 9) // shift+tab
+          ) {
+          if (menuOn) event.preventDefault();
+          parentWatcher(event);
         }
       }
+    });
 
-
-      // Parent watcher event for all key events except escape
-      if (
-        (!event.shiftKey && event.which === 9) || // tab
-        event.which === 37 || // left
-        event.which === 38 || // up
-        event.which === 39 || // right
-        event.which === 40 || // down
-        (event.shiftKey && event.which === 9) // shift+tab
-        ) {
-        if (menuOn) event.preventDefault();
-        parentWatcher(event);
+    // Reset system on DOCUMENT RESIZE
+    $(window).resize(function() { 
+      var curWidth;
+      curWidth = window.innerWidth;
+      if (winWidth > 760 && curWidth <= 760) {
+        systemExit(); 
+        winWidth = curWidth;
+      } else if (winWidth <= 760 && curWidth > 760) {
+        systemExit(); 
+        winWidth = curWidth;
       }
     });
   }
@@ -496,12 +512,28 @@ jQuery(document).ready(function($){
    * This totally exits the system
   **/
   function systemExit () {
+    var domEle = $('#adaContent'),
+        domEle2 = $('#adaStatus');
+
     innerIndex = 0;
     outerIndex = 0;
     menuOn = false;
     arraySwitch = false;
     parentStatus = false;
+    
     $('.working, .ada-parent').removeClass('working ada-parent');
+
+    domEle2.text('Menu navigation turned off');
+    domEle2.removeClass('start').addClass('exit');
+    domEle.css('height',0);
+
+    setTimeout(function () { 
+      domEle2.css('opacity', 0); 
+    }, 400);
+    setTimeout(function () { 
+      domEle.removeClass('start');
+      domEle2.removeClass('exit'); 
+    }, 1000);
   }
 
   function maxInnerEval () {
