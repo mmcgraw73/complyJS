@@ -16,7 +16,7 @@ Sanitizes the current page after the DOM is ready to ensure proper HTML tag usag
 ### $.adaAria()
 Creates ARIA tags for elements. Currently only implemented for labels and buttons. 
 
-### $.adaImages([[options],[options]])
+### $.adaImages([ [options],[options] ])
 Creates alt attributes for all images passed in.
 
 ##### Param options
@@ -29,11 +29,36 @@ $.adaImages(["selector", "method", "text to use"])
 * "custom" - Passes a string literal as the alt attribute
 
 ##### Use case examples
-```
+```javascript
 $.adaImages([
   ["#selector", "parent", "#parent to retrieve"],
   ["#selector", "sibling", "#sibling to retrieve"],
   ["#selector", "combo", "#parent to target", "#child to find in parent"],
   ["#selector", "custom", "My custom string"]
 ]);
+```
+### $.adaBuilder([ [selector, optional-parent] ])
+Programmatically builds an ADA compliant navigation menu
+
+##### Param options
+$.adaBuilder([ [selector, optional-parent] ])
+
+or with no parent needed
+$.adaBuilder([ selector ])
+
+**Selector options**
+Selector needs to a jQuery defined selector. Example: $(".my-selector a")
+
+**Optional Parent options**
+Parent to be targeted for submenu headers are passed through a string literal Example: '.my-parent'
+
+##### Use case examples
+```javascript
+$.adaBuilder(
+  [
+    [jQuery('.header-top-links a'), '.community'], // optional parent param used
+    jQuery('#search'),
+    jQuery('.skip-cart'),
+  ]
+);
 ```
