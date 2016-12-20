@@ -72,6 +72,15 @@ $.adaBuilder(
   ]
 );
 ```
+### $.eleColorChecker([...])
+```javascript
+jQuery.eleColorChecker([
+  ".header-language-background *",
+  "#header-search span",
+  ".footer .explore a"
+]);
+```
+
 ### $.adaMainContent(section,scrollSpeed)
 Allows a section to be defined to skip to on SPACEBARD keydown event
 
