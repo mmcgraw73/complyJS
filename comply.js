@@ -40,6 +40,17 @@ jQuery(document).ready(function($){
       // Non menu variables for system interaction
       viewingMain = false, // Tells user if they are currently scrolled to content or not
 
+
+      // Contrast color ADA variables
+      colorSel = 0, // Array index hold for colorChecker
+      foreground, 
+      background, 
+      foreSpec, // Combined RGB value in 16-base for determining luminance
+      backSpec, // Combined RGB value in 16-base for determining luminance
+      counter=0, // This is used to stop a max call stack issue and issue a warning to the user
+      arrayVal, 
+      arrayHold=[[],[]],
+
       // Debug console css values
       debugCss = 'background: #FF0000; color:#FFFFFF; padding: 0 5px;',
       debugCss2 = 'background: #009900; color:#FFFFFF; padding: 0 20px; font-size: 16px;',
@@ -63,6 +74,7 @@ jQuery(document).ready(function($){
 
   /**
   * "b" and "i" tags are replaced with "strong" and "em."
+  * all "a" tags are underlined
   **/
   $.adaSanitize = function () {
     if ($('b').length || $('i').length) {
@@ -72,6 +84,10 @@ jQuery(document).ready(function($){
              .replace(/<i/g, '<i>').replace(/<\/em>/g, '</em>');
       $('body').html(widgetHTML);
     }
+
+    $('a').each(function(index, el) {
+     $(this).css('text-decoration', 'underline'); 
+    });
   }
 
   /**
@@ -117,6 +133,28 @@ jQuery(document).ready(function($){
           }
         });
       }
+
+      // A tags hover/focus events
+      $('a').on({
+        mouseenter: function () {
+          if ($(this).css('text-decoration') !== "underline") {
+            $(this).css('text-decoration', 'underline !important').addClass('ada-a-tag');
+          }
+        },
+        focus: function () {
+          if ($(this).css('text-decoration') !== "underline") {
+            $(this).css('text-decoration', 'underline !important').addClass('ada-a-tag');
+          }
+        },
+        mouseleave: function () {
+          if ( $(this).hasClass('ada-a-tag') ) $(this).removeClass('ada-a-tag');
+        },
+        blur: function () {
+          if ( $(this).hasClass('ada-a-tag') ) $(this).removeClass('ada-a-tag');
+        }      
+      });
+
+
     }, 500);
   }
 
@@ -198,17 +236,17 @@ jQuery(document).ready(function($){
       $('body').prepend('<div id="adaContent"></div>');
       domEle = $('#adaContent');
     } else if (option === "status") {
-      $('body').prepend('<div id="adaStatus"></div>');
+      $('body').append('<div id="adaStatus"></div>');
       domEle2 = $('#adaStatus');
     } else {
       $('body').prepend('<div id="adaContent"></div>');
-      $('body').prepend('<div id="adaStatus"></div>');
+      $('body').append('<div id="adaStatus"></div>');
       domEle = $('#adaContent');
       domEle2 = $('#adaStatus');
     }
 
     if (domEle.length) {
-      domEle.text('Press SPACEBAR to skip to main content');
+      domEle.html('Press "C" if you need to contrast colors further</br>Press SPACEBAR to skip to main content');
     }
 
     
@@ -229,7 +267,7 @@ jQuery(document).ready(function($){
           ) {
           if (viewingMain = "start") {
             domEle.addClass('start');
-            domEle.css('height',"40px");
+            domEle.css('height',"80px");
             domEle2.text('Menu navigation turned on. Press \'Esc\' to turn off.');
             domEle2.addClass('start').css('opacity', 1);
             bypass = true;
@@ -274,6 +312,26 @@ jQuery(document).ready(function($){
         }
       }
     });
+  }
+
+  /**
+    * Auto Contrast system
+  **/
+  $.adaContrast = function (array) {
+    // Auto determine contrast and apply color
+    if (array == "override") {
+
+    }
+    // Pass an array
+    else if (array.length > 0) {
+      for (var i=0; i < array.length; i++) {
+        array[i].addClass('ada-contrast');
+      }
+    } else {
+      $('*').each(function () {
+        $(this).addClass('ada-contrast');
+      });
+    }
   }
 
   /**
@@ -715,4 +773,225 @@ jQuery(document).ready(function($){
     }
   }
 
+  /*************************************
+  / ** COLOR CONTRAST ADA COMPLIANCE
+  **************************************/
+  function getContrastYIQ(color, which){
+    var L,
+        vals = [color[0], color[1], color[2]];
+
+    if (which) {
+      foreground = color;
+      foreSpec = color[0] * color[1] * color[2];
+    } else {
+      background = color;
+      backSpec = color[0] * color[1] * color[2];
+    }
+    
+    // Changing the RGB vals to a luminance to val
+    for (var i=0; i < vals.length; i++ ) {
+      if (vals[i] <= 10) {
+        vals[i] = vals[i]/3294
+      } else {
+        vals[i] = Math.pow( (vals[i]/269 + 0.0513), 2.4);
+      }
+    }
+    
+    L = 0.2126 * vals[0] + 0.7152 * vals[1] + 0.0722 * vals[2];
+    
+    return L;
+    
+  }
+  function contrastChecker(font, background, fontEle, bgEle) {
+
+    var L1 = getContrastYIQ(font, true), 
+        L2 = getContrastYIQ(background), 
+        output, 
+        ans,
+        whichDarker;
+    
+    if (L1 >= L2) {
+      output = (L1+0.05) / (L2+0.05);
+    } else {
+      output = (L2+0.05) / (L1+0.05);
+    }
+    ans = output >= 4.5
+    if (foreSpec <= backSpec) {
+      whichDarker = "fore";
+    } else {
+      whichDarker = "back";
+    }
+    if (!ans) {
+      changeColor([foreground, background, whichDarker], fontEle, bgEle);
+    }
+
+  }
+  
+  function changeColor (arr, fontEle, bgEle) {
+
+    arrayVal = arr;
+    arrayHold=[[],[]];
+    arrayHold.push(arr[2]);
+    if (counter < 3000) {
+      // User warning to split up color check calls in system
+      if (counter === 2999) {
+        console.log('%cYou have exceed the recommended selector limit and should scope the selectors more accurately for $.eleColorChecker()','background: red; color: white; padding: 0 5px; font-size: -16px;')
+      }
+
+
+      var L1, L2, output, ans;
+
+      // Foreground change
+      if ( arrayVal[2] === "fore" ) {
+        for (var i =0; i < 3; i++) {
+          arrayVal[0][i] = arrayVal[0][i] - 2;
+          arrayVal[1][i] = arrayVal[1][i] + 2;
+
+          if (arrayVal[1][i] > 255) arrayVal[1][i] = 255;
+          if (arrayVal[0][i] < 1) arrayVal[0][i] = 0;
+          arrayHold[0].push(arrayVal[0][i]);
+          arrayHold[1].push(arrayVal[1][i]);
+        }
+      } else {
+        for (var i = 0; i < 3; i++) {
+          arrayVal[0][i] = arrayVal[0][i] + 2;
+          arrayVal[1][i] = arrayVal[1][i] - 2;
+          if (arrayVal[0][i] > 255) arrayVal[0][i] = 255;
+          if (arrayVal[1][i] < 0) arrayVal[1][i] = 0;
+          arrayHold[0].push(arrayVal[0][i]);
+          arrayHold[1].push(arrayVal[1][i]);
+        }
+      }
+
+
+      // Luminance eval
+      for (var k = 0; k<2;k++) {
+        for (var j=0; j<3;j++) {
+          if (arrayVal[k][j] <= 10) {
+            arrayVal[k][j] = arrayVal[k][j]/3294;
+          } else {
+            arrayVal[k][j] = Math.pow( (arrayVal[k][j]/269 + 0.0513), 2.4 );
+          }
+        }
+      }
+
+      L1 = 0.2126 * arrayVal[0][0] + 0.7152 * arrayVal[0][1] + 0.0722 * arrayVal[0][2];
+      L2 = 0.2126 * arrayVal[1][0] + 0.7152 * arrayVal[1][1] + 0.0722 * arrayVal[1][2];
+      
+
+      if (L1 >= L2) {
+        output = (L1+0.05) / (L2+0.05);
+      } else {
+        output = (L2+0.05) / (L1+0.05);
+      }
+
+      ans = output >= 4.5;
+      counter++;
+      if (!ans) {
+        changeColor(arrayHold, fontEle, bgEle);
+      } else {
+        fontEle.css('color', "rgb("+arrayHold[0][0]+","+arrayHold[0][1]+","+arrayHold[0][2]+")");
+        bgEle.css('background', "rgb("+arrayHold[1][0]+","+arrayHold[1][1]+","+arrayHold[1][2]+")");
+      }
+    }
+  }
+
+  function colorSanitizer (rgb) {
+    if (rgb === "transparent" || rgb === "rgba(0, 0, 0, 0)") {
+      return "transparent";
+    }
+
+    if (rgb.substr(0,4) === "rgb(") {
+      var a = rgb.substr(4); 
+    } else {
+      var a = rgb.substr(5);
+    }
+    
+    a = a.substr(0, a.length-1).split(',');
+    for (var i =0; i < a.length; i++) {
+      a[i] = parseInt(a[i]);
+    }
+    if ( a.length === 4 ) a.pop();
+    return a;
+  }
+
+  $.eleColorChecker = function (selectorArg) {
+    jQuery(document).on('keydown', function(event) {
+      if (event.which === 67 && menuOn !== false) {
+        $.eleColorCheckerSys(selectorArg);
+      }
+    })
+  }
+
+  $.eleColorCheckerSys = function (selectorArg) {
+    var argPasser = selectorArg;
+    
+    // Reset counter every time it's called
+    counter = 0;
+
+    if (selectorArg === undefined) {
+      console.log('I AM UNDEF');
+      selectorArg = $('*');
+    } else {
+      console.log(selectorArg[colorSel]);
+      selectorArg = $(selectorArg[colorSel]);
+    }
+    
+    selectorArg.each(function () {
+      var thisE = $(this).prop('nodeName');
+
+      // Skip all non-relevant ele
+      if ((
+        thisE == "MAIN" ||
+        thisE == "NAV" ||
+        thisE == "HEADER" ||
+        thisE == "DIV" || 
+        thisE == "P" || 
+        thisE == "H1" || 
+        thisE == "H2" || 
+        thisE == "H3" || 
+        thisE == "H4" || 
+        thisE == "H5" || 
+        thisE == "H6" || 
+        thisE == "A" || 
+        thisE == "P" || 
+        thisE == "LI" || 
+        thisE == "SPAN" || 
+        thisE == "LABEL" || 
+        thisE == "PRE"
+      ) || selectorArg !== undefined) { 
+        var fontEle = $(this),
+            bgEle = $(this),
+            fontColor = colorSanitizer( $(this).css('color') ),
+            bgColor = colorSanitizer( $(this).css('background-color') ),
+            parentArr,
+            tempParentColor;      
+
+        if (bgColor === "transparent") {
+          parentArr = $(this).parents();
+
+          for (var i=0;i<parentArr.length;i++) {
+            if ( $(parentArr[i]).prop('nodeName') === "BODY" ) {
+              bgEle = $('body');
+              bgColor = [256,256,256];
+              break;
+            } else if ( $(parentArr[i]).css('background-color') !== "rgba(0, 0, 0, 0)" ) {
+              bgEle = $(parentArr[i]);
+              bgColor = colorSanitizer(  $(parentArr[i]).css('background-color') );
+              break;
+            } else if ( i === parentArr.length -1 ) {
+              bgEle = $('body');
+              bgColor = [256,256,256];
+            }
+          }
+        }
+        contrastChecker(fontColor,bgColor, fontEle, bgEle);
+      }
+    });
+
+    if (argPasser.length > 1 && colorSel <= selectorArg.length + 1) {
+      colorSel++;
+      $.eleColorCheckerSys(argPasser);
+    }
+  }
 }(jQuery));
